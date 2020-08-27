@@ -68,7 +68,7 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
 
         main.ejecucionHiloAlgoritmo = true
         println("Hilo Iniciado Estado: $hiloCorriendo")
-        val resultados: Array<Double> = iniciarAlgoritmo()
+        val resultados: ArrayList<ArrayList<Double>> = iniciarAlgoritmo()
         println("Hilo Terminado")
         main.ejecucionHiloAlgoritmo = false
 
@@ -98,7 +98,7 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
         this.precipitacion = precipitacion
     }
 
-    private fun iniciarAlgoritmo(): Array<Double> {
+    private fun iniciarAlgoritmo(): ArrayList<ArrayList<Double>> {
 
 
         //Inicializo la barra de progreso
@@ -109,7 +109,7 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
         importaDatos()
 
         //sol: array con la solución final
-        var sol = Array(6) { 0.0 }
+        var sol = ArrayList<ArrayList<Double>>()
 
 
         val a = configuracion.size
@@ -121,6 +121,12 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
         for (r in 0 until repeticiones) {
             actualizaBarraDeProgreso(r, repeticiones, vbarraProgreso)
             iniciarCronometro()
+
+            var ppd = ArrayList<ArrayList<Double>>()
+            var pmv = ArrayList<ArrayList<Double>>()
+            var trm = ArrayList<ArrayList<Double>>()
+            var disTT = 0.0
+
 
             //Reinicio Matrices
             sol_corrida = ArrayList<ArrayList<Int>>()
@@ -158,13 +164,13 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
                     distancias.withIndex().minByOrNull { (_, f) -> f }?.index
                 //LINEA 30 de MATLAB!!!!!!!!!
                 val ppdPmvTrm = funcion_datos(pruebas, temperatura, precipitacion)
-                val ppd = ppdPmvTrm[0]
-                val pmv = ppdPmvTrm[1]
-                val trm = ppdPmvTrm[2]
+                ppd = ppdPmvTrm[0]
+                pmv = ppdPmvTrm[1]
+                trm = ppdPmvTrm[2]
 
                 val max_TRM = trm.maxOfOrNull { it.maxOfOrNull { it } ?: 0.0 } ?: 0.0
                 val min_TRM = trm.minOfOrNull { it.minOfOrNull { it } ?: 0.0 } ?: 0.0
-                val disTT = max_TRM - min_TRM
+                disTT = max_TRM - min_TRM
 
                 for (k in 0 until 6) {
                     if (ppd[posicionDistanciaMinima ?: 0][k] <= 15.0) {
@@ -194,7 +200,6 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
                         objetivos[i][1],
                         objetivos[i][2]
                     ).maxOf { it }
-                    println("Test")
                 }
 
             }
@@ -273,6 +278,7 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
                 }
 
                 val cMI = MI.size
+                var aux3: ArrayList<Double>
 
                 for (i in 0 until pa) {
                     val a = (i) * mc
@@ -302,8 +308,9 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
                         }
                     }
 
+
                     //if(Math.random() <= cfg){
-                    if (0.05 <= cfg) {
+                    if (0.01 <= cfg) {
                         val MK = ArrayList<ArrayList<Double>>().apply {
                             for (xx in 0 until MIndividual.size) {
                                 add(ArrayList<Double>().apply {
@@ -412,21 +419,114 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
                         val mC1 = DMatrixRMaj(1, c1.size)
                         for (xx in 0 until c1.size) mC1.set(0, xx, c1[xx])
                         val mFiltrado = DMatrixRMaj(filtrado.size, filtrado[0].size)
-                        for(xx in 0 until filtrado.size) for(yy in 0 until filtrado[xx].size){
+                        for (xx in 0 until filtrado.size) for (yy in 0 until filtrado[xx].size) {
                             mFiltrado.set(xx, yy, filtrado[xx][yy].toDouble())
                         }
 
-                        val aux3 = SimpleMatrix(mC1).mult(SimpleMatrix(mFiltrado))
 
-                        println("test")
+                        val aux3Mat = SimpleMatrix(mC1).mult(SimpleMatrix(mFiltrado))
+                        aux3 = ArrayList<Double>().apply {
+                            for (xx in 0 until aux3Mat.numCols()) add(aux3Mat.get(0, xx))
+                        }
+
+                        val aux4 = MK.size
+                        val aux5 = MK[0].size
+
+                        for (iii in 0 until aux5 step 2) {
+                            //if (Math.random() <= cfi) {
+                            if (0.45 <= cfi) {
+                                aux3[iii] = (1 - aux3[iii]).pow(2)
+                                aux3[iii + 1] = (1 - aux3[iii]).pow(2)
+
+                            } else {
+                                aux3[iii + 1] = (1 - aux3[iii]).pow(2)
+                            }
+                        }
+
+                    } else {
+                        aux3 = ArrayList<Double>()
+                        var j = 0
+                        for (k in 0 until 6) {
+                            //aux3.add(round(Math.random()))
+                            aux3.add(round(0.45))
+                            aux3.add((1 - aux3[j]).pow(2))
+                            j += 2
+                        }
+                    }
+
+                    val a1 = configuracion.size
+                    val b1 = configuracion[0].size
+
+                    val distancias = ArrayList<Double>().apply {
+                        for (xx in 0 until a1) add(0.0)
+                    }
+
+                    for (j in 0 until a1) {
+                        val tempMat = ArrayList<Double>()
+                        for (xx in 0 until configuracion[j].size) tempMat.add(
+                            (configuracion[j][xx] - sol_corrida[i][xx]).pow(
+                                2
+                            )
+                        )
+                        distancias[j] = sqrt(tempMat.sum())
+                    }
+
+                    val min1 = distancias.minByOrNull { it }
+                    val min2 = distancias.withIndex().minByOrNull { (_, f) -> f }?.index
+                    val objetivos1 = ArrayList<Double>().apply { for (xx in 0 until 4) add(0.0) }
+
+                    for (k in 0 until 6) {
+                        if (ppd[min2 ?: 0][k] <= 15.0) {
+                            objetivos1[0] += 0.0
+                        } else {
+                            objetivos1[0] += (1.0 / 6.0) * ((15.0 - ppd[min2 ?: 0][k]) / (-85.0))
+                        }
+                        if (pmv[min2 ?: 0][k] == 0.0) {
+                            objetivos1[1] += 0.0
+                        } else {
+                            objetivos1[1] += (1.0 / 6.0) * abs(pmv[min2 ?: 0][k]) / 3.0
+                        }
+                        if (trm[min2 ?: 0][k] in 18.0..23.0) {
+                            objetivos1[2] += 0.0
+                        } else {
+                            val tempAux = max(18.0 - trm[min2 ?: 0][k], 23 - trm[min2 ?: 0][k])
+                            objetivos1[2] += (1.0 / 6.0) * abs(tempAux) / disTT
+                        }
+                        objetivos1[3] = maxOf(objetivos1[0], objetivos1[1], objetivos1[2])
+                    }
+
+                    for (xx in 0 until objetivos1.size) objetivos1[xx] *= (1.0 / 5.0)
+
+                    if (objetivos1[3] < Contadores[i][0]) {
+                        for (xx in 0 until aux3.size) sol_corrida1[Contadores[i][1].toInt()][xx] =
+                            aux3[xx].toInt()
+                        for (xx in 0 until objetivos1.size) objetivos2[Contadores[i][1].toInt()][xx] =
+                            objetivos1[xx]
                     }
                 }
+
+                sol_corrida = sol_corrida1
+                objetivos = objetivos2
             }
 
+            val tempArr =
+                ArrayList<Double>().apply { for (xx in 0 until objetivos.size) add(objetivos[xx][3]) }
+            val q1 = tempArr.minByOrNull { it } ?: 0.0
+            val q2 = tempArr.withIndex().minByOrNull { (_, f) -> f }?.index
+
+            val res_sol = ArrayList<Double>().apply {
+                for(xx in 0 until sol_corrida[q2?:0].size) add(sol_corrida[q2?:0][xx].toDouble())
+                for(xx in 0 until objetivos[q2?:0].size) add(objetivos[q2?:0][xx])
+            }
+
+            sol.add(res_sol)
+
+            //FUNCIONALIDADES DE LA APP ANDROID
             detenerCronometro()
             calcularPorcentajeYTiempoRestante(r, repeticiones)
         }
         //Termina ciclo de repeticiones
+
 
 
         actualizaBarraDeProgreso(repeticiones, repeticiones, vbarraProgreso)
