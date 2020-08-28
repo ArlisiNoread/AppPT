@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         val algoritmoPrincipal = AlgoritmoPrincipal(this)
         algoritmoPrincipal.definirParametrosParaAlgoritmo(
             10,
-            1000,
+            100,
             50,
             0.1,
             0.1,

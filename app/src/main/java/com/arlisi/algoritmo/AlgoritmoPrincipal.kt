@@ -69,13 +69,35 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
 
         main.ejecucionHiloAlgoritmo = true
         val resultados: ArrayList<ArrayList<Double>> = iniciarAlgoritmo()
-        analisisYProcesamientoDeResultados()
+        analisisYProcesamientoDeResultados(resultados)
         main.ejecucionHiloAlgoritmo = false
 
     }
 
-    private fun analisisYProcesamientoDeResultados(resultados: ArrayList<ArrayList<Double>>){
-    
+    private fun analisisYProcesamientoDeResultados(resultados: ArrayList<ArrayList<Double>>) {
+        val valoresMedios = ArrayList<Int>().apply {
+            for (yy in 0 until resultados[0].size) {
+                var sumatoria = 0.0
+                for (xx in 0 until resultados.size) {
+                    sumatoria += resultados[xx][yy]
+                }
+                add(round(sumatoria/resultados.size).toInt())
+            }
+        }
+
+        val recomendacion = ArrayList<Int>()
+
+        var j = 0
+        for(ii in 0 until 6){
+            if(valoresMedios[j] == 1){
+                recomendacion.add(1)
+            }else{
+                recomendacion.add(2)
+            }
+            j += 2
+        }
+
+        println(recomendacion)
     }
 
     public fun definirParametrosParaAlgoritmo(
