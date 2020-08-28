@@ -3,6 +3,7 @@ import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import com.arlisi.algoritmo.RandomAux
 import com.arlisi.apppt.MainActivity
+import kotlinx.android.extensions.ContainerOptions
 import kotlinx.android.synthetic.main.activity_main.*
 import org.ejml.data.DMatrix
 import org.ejml.data.DMatrixRMaj
@@ -67,11 +68,14 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
     public override fun run() {
 
         main.ejecucionHiloAlgoritmo = true
-        println("Hilo Iniciado Estado: $hiloCorriendo")
         val resultados: ArrayList<ArrayList<Double>> = iniciarAlgoritmo()
-        println("Hilo Terminado")
+        analisisYProcesamientoDeResultados()
         main.ejecucionHiloAlgoritmo = false
 
+    }
+
+    private fun analisisYProcesamientoDeResultados(resultados: ArrayList<ArrayList<Double>>){
+    
     }
 
     public fun definirParametrosParaAlgoritmo(
@@ -137,8 +141,8 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
             //Soluciones iniciales
             for (i in 0 until (mc * pa)) {
                 var aux = ArrayList<Int>()
-                //for (t in 0 until 6) aux.add(round(Random.nextDouble()).toInt())
-                for (t in 0 until 6) aux.add(0)
+                for (t in 0 until 6) aux.add(round(Random.nextDouble()).toInt())
+                //for (t in 0 until 6) aux.add(0)
 
                 for (j in 0 until 6) {
                     sol_corrida[i].add(aux[j])
@@ -224,20 +228,25 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
                 for (i in 0 until pa) {
                     Contadores.add(ArrayList<Double>().apply { for (aa in 0 until 6) add(0.0) })
                     val a = 1 + (i) * mc
-                    val b = a + mc - 1
+                    val b = a + mc - 2
 
                     val A = ArrayList<ArrayList<Double>>()
                     for (cc in (a - 1) until b) {
                         A.add(ArrayList(objetivos[cc]))
                     }
 
-                    Contadores[i][0] = A.maxOfOrNull { it[3] } ?: 0.0
-                    Contadores[i][1] = A.maxOfOrNull { it[3] } ?: 0.0
-                    Contadores[i][2] = A.minOfOrNull { it[3] } ?: 0.0
-                    Contadores[i][3] = A.minOfOrNull { it[3] } ?: 0.0
+                    ArrayList<Double>().apply {
+                        for (xx in 0 until A.size) add(A[xx][3])
+                        Contadores[i][0] = maxOfOrNull { it } ?: 0.0
+                        Contadores[i][1] =
+                            withIndex().maxByOrNull { (_, f) -> f }?.index!!.toDouble()
+                        Contadores[i][2] = minByOrNull { it } ?: 0.0
+                        Contadores[i][3] =
+                            withIndex().minByOrNull { (_, f) -> f }?.index!!.toDouble()
+                    }
 
-                    Contadores[i][1] = Contadores[i][1] + ((i.toDouble()) * mc.toDouble())
-                    Contadores[i][3] = Contadores[i][3] + ((i.toDouble()) * mc.toDouble())
+                    Contadores[i][1] = Contadores[i][1] + (i * mc)
+                    Contadores[i][3] = Contadores[i][3] + (i * mc)
                     Contadores[i][4] = a.toDouble()
                     Contadores[i][5] = b.toDouble()
                 }
@@ -257,17 +266,17 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
                             if (links[j][i] == 1.0) {
                                 if (aux_j < aux_i) {
                                     val seleccion =
-                                        //round(Contadores[j][4] + Math.random() * Contadores[j][5] - Contadores[j][4])
-                                        round(Contadores[j][4] + 0.5 * Contadores[j][5] - Contadores[j][4])
+                                        round(Contadores[j][4] + Random.nextDouble() * Contadores[j][5] - Contadores[j][4])
+                                    //round(Contadores[j][4] + 0.5 * Contadores[j][5] - Contadores[j][4])
                                     contador++
                                     MI.add(ArrayList<Double>().apply {
                                         for (xx in 0 until 12) {
-                                            sol_corrida[seleccion.toInt()][xx]
+                                            add(sol_corrida[seleccion.toInt()][xx].toDouble())
                                         }
                                     })
                                     MIo.add(ArrayList<Double>().apply {
                                         for (xx in 0 until 4) {
-                                            objetivos[seleccion.toInt()][xx]
+                                            add(objetivos[seleccion.toInt()][xx])
                                         }
                                     })
                                     destino.add(i)
@@ -309,8 +318,8 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
                     }
 
 
-                    //if(Math.random() <= cfg){
-                    if (0.01 <= cfg) {
+                    if (Random.nextDouble() <= cfg) {
+                        //if (0.01 <= cfg) {
                         val MK = ArrayList<ArrayList<Double>>().apply {
                             for (xx in 0 until MIndividual.size) {
                                 add(ArrayList<Double>().apply {
@@ -345,9 +354,13 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
                             }
                         }
 
-                        val peor =
-                            ArrayList<Double>().apply { for (xx in 0 until MKo.size) add(MKo[xx][3]) }
-                                .maxByOrNull { it } ?: 0.0
+
+                        var tempArr = ArrayList<Double>()
+                        for (xx in 0 until MKo.size) {
+                            tempArr.add(MKo[xx][3])
+                        }
+                        val peor = tempArr.maxByOrNull { it } ?: 0.0
+
                         val mejor =
                             ArrayList<Double>().apply { for (xx in 0 until MKo.size) add(MKo[xx][3]) }
                                 .minByOrNull { it } ?: 0.0
@@ -385,8 +398,8 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
 
                         for (xx in 0 until preponderancia.size) preponderancia[xx] /= auxSum
 
-                        //val seleccion = Math.random()
-                        var seleccion = 0.03
+                        var seleccion = Random.nextDouble()
+                        //var seleccion = 0.03
 
                         var p = 0.0
                         var ps = 0.0
@@ -397,13 +410,13 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
                         }
 
                         filtrado.add(ArrayList<Int>().apply {
-                            for (xx in 0 until MK[ps.toInt()].size) add(MK[ps.toInt()][xx].toInt())
+                            for (xx in 0 until MK[(ps - 1).toInt()].size) add(MK[(ps - 1).toInt()][xx].toInt())
                         })
 
-                        c1.add(preponderancia[ps.toInt()])
+                        c1.add(preponderancia[(ps - 1).toInt()])
 
-                        //seleccion = round(1+ Math.random() * (er1-1))
-                        seleccion = round(1 + 0.265 * (er1 - 1))
+                        seleccion = round(Random.nextDouble() * (er1 - 1))
+                        //seleccion = round( 0.265 * (er1 - 1))
 
                         filtrado.add(ArrayList<Int>().apply {
                             for (xx in 0 until MK[seleccion.toInt()].size) add(
@@ -432,9 +445,11 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
                         val aux4 = MK.size
                         val aux5 = MK[0].size
 
-                        for (iii in 0 until aux5 step 2) {
-                            //if (Math.random() <= cfi) {
-                            if (0.45 <= cfi) {
+
+                        //### DETALLE DE ARRAY! CHECAR
+                        for (iii in 0 until aux5 - 1 step 2) {
+                            if (Random.nextDouble() <= cfi) {
+                                //if (0.45 <= cfi) {
                                 aux3[iii] = (1 - aux3[iii]).pow(2)
                                 aux3[iii + 1] = (1 - aux3[iii]).pow(2)
 
@@ -447,8 +462,8 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
                         aux3 = ArrayList<Double>()
                         var j = 0
                         for (k in 0 until 6) {
-                            //aux3.add(round(Math.random()))
-                            aux3.add(round(0.45))
+                            aux3.add(round(Random.nextDouble()))
+                            //aux3.add(round(0.45))
                             aux3.add((1 - aux3[j]).pow(2))
                             j += 2
                         }
@@ -515,8 +530,10 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
             val q2 = tempArr.withIndex().minByOrNull { (_, f) -> f }?.index
 
             val res_sol = ArrayList<Double>().apply {
-                for(xx in 0 until sol_corrida[q2?:0].size) add(sol_corrida[q2?:0][xx].toDouble())
-                for(xx in 0 until objetivos[q2?:0].size) add(objetivos[q2?:0][xx])
+                for (xx in 0 until sol_corrida[q2 ?: 0].size) add(
+                    sol_corrida[q2 ?: 0][xx].toDouble()
+                )
+                for (xx in 0 until objetivos[q2 ?: 0].size) add(objetivos[q2 ?: 0][xx])
             }
 
             sol.add(res_sol)
@@ -526,7 +543,6 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
             calcularPorcentajeYTiempoRestante(r, repeticiones)
         }
         //Termina ciclo de repeticiones
-
 
 
         actualizaBarraDeProgreso(repeticiones, repeticiones, vbarraProgreso)
@@ -543,8 +559,8 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
                     if (i == j) {
                         links[i][j] = 1.0
                     } else {
-                        //if (Math.random() <= fcla) {
-                        if (1.2 <= fcla) {
+                        if (Random.nextDouble() <= fcla) {
+                            //if (1.2 <= fcla) {
                             links[i][j] = 1.0
                         } else {
                             links[i][j] = 0.0
@@ -558,8 +574,8 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
                     if (i == j) {
                         links[i][j] = 0.0
                     } else {
-                        //if(Math.random() <= fcla){
-                        if (1.2 <= fcla) {
+                        if (Random.nextDouble() <= fcla) {
+                            //if (1.2 <= fcla) {
                             links[i][j] = (links[i][j] - 1).pow(2)
                         } else {
                             links[i][j] = links[i][j]
@@ -572,12 +588,12 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
         for (i in 0 until pa) {
             val aux = links[i].sum()
             if (aux == 0.0) {
-                //var seleccion = round(1.0 + Math.random() * (pa - 1))
-                var seleccion = round(1.0 + 0.8 * (pa - 1)).toInt()
+                var seleccion = round(1.0 + Random.nextDouble() * (pa - 1)).toInt()
+                //var seleccion = round(1.0 + 0.8 * (pa - 1)).toInt()
 
                 while (seleccion - 1 == i) {
-                    //seleccion = round(1 + Math.random() * (pa - 1))
-                    seleccion = round(1 + 0.6 * (pa - 1)).toInt()
+                    seleccion = round(1 + Random.nextDouble() * (pa - 1)).toInt()
+                    //seleccion = round(1 + 0.6 * (pa - 1)).toInt()
                 }
                 links[i][seleccion - 1] = 1.0
             }
@@ -632,8 +648,8 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
 
             var diferencia2 = ArrayList<Double>()
             for (q in 0 until 4) {
-                //diferencia2.add(diferencia1[q] + RandomAux().nextGaussian())
-                diferencia2.add(diferencia1[q] + 1.5)
+                diferencia2.add(diferencia1[q] + RandomAux().nextGaussian())
+                //diferencia2.add(diferencia1[q] + 1.5)
             }
 
 
