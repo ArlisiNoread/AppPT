@@ -1,3 +1,26 @@
 <resources>
-    <string name="app_name">AppPT</string>
+    <string name="app_name">Nombre por elegir</string>
+    <string name="menu_0">Calculadora</string>
+    <string name="menu_1">Historial</string>
+    <string name="menu_2">Ayuda</string>
+
+    <!-- -->
+    <string name="textTemperatura">Temperatura</string>
+    <string name="textPrecipitacion">Precipitación</string>
+    <string name="textCompositores">Compositores</string>
+    <string name="textRepeticiones">Repeticiones</string>
+    <string name="textMemoria">Memoria</string>
+    <string name="textPruebas">Pruebas</string>
+    <string name="textEvaluaciones">Evaluaciones</string>
+    <string name="textIFG">IFG</string>
+    <string name="textCFG">CFG</string>
+    <string name="textFCLA">FCLA</string>
+
+
+    <string name="peticionInicial">Ingrese los datos solicitados</string>
+    <string name="botonAceptado">Iniciar Algoritmo</string>
+    <string name="botonEnEspera">Ingrese Datos</string>
+    <string name="botonCancelar">Cancelar</string>
+    <string name="hello_blank_fragment">Plantilla por diseñar</string>
+
 </resources>

@@ -3,4 +3,8 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
+    <color name="colorBotonNormal">#779ECB</color>
+    <color name="colorBotonDetener">#FE6B64</color>
+    <color name="colorBotonEsperandoDatos">#DEE2D9</color>
+
 </resources>

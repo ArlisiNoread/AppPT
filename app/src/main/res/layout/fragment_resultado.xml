@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FragmentResultado"
+    >
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:stretchColumns="*"
+        android:layout_margin="20dp">
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            >
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textFieldMuros"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Densidad de Muros"
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/textoPuroMuros"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            >
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textFieldTecho"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Densidad de Techo"
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/textoPuroTecho"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            >
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textFieldAltura"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Altura"
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/textoPuroAltura"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            >
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textFieldColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Color de Acabado"
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/textoPuroAcabado"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            >
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textFieldVentilacion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Ventilacion"
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/textoPuroVentilacion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            >
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/textFieldTransmitancia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Transmitancia del Cristal"
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/textoPuroTransmitancia"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </TableRow>
+
+    </TableLayout>
+
+
+</LinearLayout>
+

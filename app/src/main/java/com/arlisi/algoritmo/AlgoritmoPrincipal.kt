@@ -1,18 +1,17 @@
-import android.icu.number.ScientificNotation
+import android.content.Intent
+import android.view.View
 import android.widget.ProgressBar
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.arlisi.algoritmo.RandomAux
-import com.arlisi.apppt.MainActivity
-import kotlinx.android.extensions.ContainerOptions
-import kotlinx.android.synthetic.main.activity_main.*
-import org.ejml.data.DMatrix
+import com.arlisi.apppt.FragmentCalculadora
+import kotlinx.android.synthetic.main.fragment_calculadora.*
 import org.ejml.data.DMatrixRMaj
 import org.ejml.simple.SimpleMatrix
 import kotlin.math.*
 import kotlin.random.Random
 
 
-class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
+class AlgoritmoPrincipal(private val main: FragmentCalculadora) : Thread() {
 
     private var hiloCorriendo = false
     private var configuracion: ArrayList<ArrayList<Double>> = ArrayList<ArrayList<Double>>();
@@ -68,10 +67,12 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
     public override fun run() {
 
         main.ejecucionHiloAlgoritmo = true
-        val resultados: ArrayList<ArrayList<Double>> = iniciarAlgoritmo()
-        analisisYProcesamientoDeResultados(resultados)
-        main.ejecucionHiloAlgoritmo = false
-
+        val resultados: ArrayList<ArrayList<Double>>? = iniciarAlgoritmo()
+        if(resultados != null){
+            analisisYProcesamientoDeResultados(resultados)
+            main.ejecucionHiloAlgoritmo = false
+        }
+        //main.ventanaFlotante.visibility = View.GONE
     }
 
     private fun analisisYProcesamientoDeResultados(resultados: ArrayList<ArrayList<Double>>) {
@@ -81,23 +82,30 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
                 for (xx in 0 until resultados.size) {
                     sumatoria += resultados[xx][yy]
                 }
-                add(round(sumatoria/resultados.size).toInt())
+                add(round(sumatoria / resultados.size).toInt())
             }
         }
 
         val recomendacion = ArrayList<Int>()
 
         var j = 0
-        for(ii in 0 until 6){
-            if(valoresMedios[j] == 1){
+        for (ii in 0 until 6) {
+            if (valoresMedios[j] == 1) {
                 recomendacion.add(1)
-            }else{
+            } else {
                 recomendacion.add(2)
             }
             j += 2
         }
-
         println(recomendacion)
+
+        /*
+        val intent = Intent(main, PanelResultadosActivity::class.java).apply {
+            putExtra("resultados", recomendacion)
+        }
+        main.startActivity(intent)
+        */
+        main.resultado = recomendacion
     }
 
     public fun definirParametrosParaAlgoritmo(
@@ -112,19 +120,22 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
         temperatura: Double,
         precipitacion: Double,
     ) {
-        this.pa = pa
-        this.repeticiones = repeticiones
-        this.maxEvaluaciones = maxEvaluaciones
-        this.fcla = fcla
-        this.cfg = cfg
-        this.cfi = cfi
-        this.mc = mc
-        this.pruebas = pruebas
-        this.temperatura = temperatura
-        this.precipitacion = precipitacion
+        if (!this.hiloCorriendo) {
+            this.pa = pa
+            this.repeticiones = repeticiones
+            this.maxEvaluaciones = maxEvaluaciones
+            this.fcla = fcla
+            this.cfg = cfg
+            this.cfi = cfi
+            this.mc = mc
+            this.pruebas = pruebas
+            this.temperatura = temperatura
+            this.precipitacion = precipitacion
+        }
+
     }
 
-    private fun iniciarAlgoritmo(): ArrayList<ArrayList<Double>> {
+    private fun iniciarAlgoritmo(): ArrayList<ArrayList<Double>>? {
 
 
         //Inicializo la barra de progreso
@@ -145,6 +156,8 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
 
         //Inicia ciclo de r hasta repeticiones
         for (r in 0 until repeticiones) {
+            if(!main.ejecucionHiloAlgoritmo) return null
+
             actualizaBarraDeProgreso(r, repeticiones, vbarraProgreso)
             iniciarCronometro()
 
@@ -718,7 +731,8 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
 
         val matriz = ArrayList<ArrayList<Double>>()
 
-        val lineas = main.assets.open(ruta).bufferedReader().readLines()
+        val lineas = main.requireContext().assets.open(ruta).bufferedReader().readLines()
+
 
         for (i in 0 until lineas.size) {
             val tokens = lineas[i].split("\t");
@@ -726,6 +740,9 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
             tokens.forEach { tempArray.add(it.toDouble()) }
             matriz.add(tempArray)
         }
+
+
+
         return matriz
     }
 
@@ -738,6 +755,7 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
         vbarraProgreso.progress = progreso.toInt()
     }
 
+
     private fun iniciarCronometro() {
         this.inicioCronometro = System.nanoTime()
     }
@@ -745,6 +763,7 @@ class AlgoritmoPrincipal(private val main: MainActivity) : Thread() {
     private fun detenerCronometro() {
         this.finCronometro = System.nanoTime()
     }
+
 
     private fun calcularPorcentajeYTiempoRestante(r: Int, repeticiones: Int) {
         val porcentaje = (r.toDouble() * 100.0) / repeticiones.toDouble()
